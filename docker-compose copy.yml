@@ -1,0 +1,73 @@
+services:
+  # Container do Nginx
+  nginx:
+    image: nginx:alpine # Imagem do Nginx
+    container_name: nginx_server
+    ports:
+      - "80:80"  # Expondo a porta 80 para o navegador
+    volumes:
+      - ./backend/public:/var/www/html  # Código PHP da sua aplicação
+      - ./nginx/:/etc/nginx/  # Configuração do Nginx
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - php  # Espera o PHP-FPM estar disponível
+    networks:
+      - app-network
+
+  # Container do PHP-FPM
+  php:
+    image: php:8.1-fpm-alpine # Imagem do PHP-FPM
+    container_name: php_fpm
+    volumes:
+      - ./backend/public:/var/www/html  # Código PHP compartilhado com o Nginx
+    depends_on:
+      - mysql
+      # - redis
+    networks:
+      - app-network
+
+  # MySQL Database container
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+        - MYSQL_ROOT_PASSWORD=secret
+        - MYSQL_DATABASE=php_course
+        - MYSQL_USER=admin
+        - MYSQL_PASSWORD=secret
+    ports:
+        - '3306:3306'  # Expondo a porta padrão do MySQL
+    volumes:
+      - ./mysql:/var/lib/mysql
+    networks:
+      - app-network
+
+  # Redis cache container
+  # redis:
+  #   image: redis:alpine
+  #   container_name: redis
+  #   ports:
+  #     - "6379:6379"  # Expondo a porta padrão do Redis
+  #   networks:
+  #     - app-network
+
+  # # Frontend React container
+  # react:
+  #   image: node:22-alpine
+  #   container_name: frontend
+  #   volumes:
+  #     - ./frontend/:/usr/src/app
+  #   working_dir: /usr/src/app
+  #   command: sh -c "npm install && npm run start"
+  #   ports:
+  #     - "3000:3000"
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+# volumes:
+#   db-data:
+#     driver: local

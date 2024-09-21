@@ -1,0 +1,13 @@
+{
+  "name": "yankarlo/first-php-project",
+  "description": "A brief description of your project.",
+  "version": "1.0.0",
+  "require": {
+      "php": "^8.1"
+  },
+  "autoload": {
+      "psr-4": {
+          "Backend\\": "src/"
+      }
+  }
+}

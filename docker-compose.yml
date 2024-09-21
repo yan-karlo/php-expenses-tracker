@@ -1,0 +1,50 @@
+services:
+  # Container do Nginx
+  nginx:
+    image: nginx:alpine # Imagem do Nginx
+    container_name: nginx_server
+    ports:
+      - "80:80"  # Expondo a porta 80 para o navegador
+    volumes:
+      - ./backend/public:/var/www/html  # Código PHP da sua aplicação
+      - ./nginx/:/etc/nginx/  # Configuração do Nginx
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - php  # Espera o PHP-FPM estar disponível
+    networks:
+      - app-network
+
+  # Container do PHP-FPM com Composer
+  php:
+    build:  # Certifique-se de que este caminho é correto
+      context: .  # Caminho para o diretório onde o Dockerfile está localizado
+      dockerfile: Dockerfile  # Nome do arquivo Dockerfile    container_name: php_fpm
+    container_name: php
+    volumes:
+      - ./backend/public:/var/www/html  # Código PHP compartilhado com o Nginx
+      - ./backend/vendor:/var/www/html/vendor  # Pasta vendor do Composer
+      - ./backend/composer.json:/var/www/html/composer.json  # Composer.json para instalar dependências
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+
+  # MySQL Database container
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=php_course
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=secret
+    ports:
+      - '3306:3306'  # Expondo a porta padrão do MySQL
+    volumes:
+      - ./mysql:/var/lib/mysql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
