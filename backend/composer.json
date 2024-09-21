@@ -1,7 +1,0 @@
-{
-  "name": "yankarlo/first-php-project",
-  "description": "A PHP app for tracking expenses",
-  "version": "1.0.0",
-  "require": {},
-  "type":"project"
-}
