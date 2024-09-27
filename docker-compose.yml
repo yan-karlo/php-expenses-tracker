@@ -1,33 +1,37 @@
 services:
-  # Container do Nginx
-  nginx:
-    image: nginx:alpine # Imagem do Nginx
-    container_name: nginx_server
+  # Container do Apache
+  apache-php:
+    build:  # Certifique-se de que este caminho é correto
+      context: .  # Caminho para o diretório onde o Dockerfile está localizado
+      dockerfile: Dockerfile  # Nome do arquivo Dockerfile
+    container_name: apache  #container name
     ports:
       - "80:80"  # Expondo a porta 80 para o navegador
+    environment:
+      PHP_OUTPUT_BUFFERING: 4096
     volumes:
       - ./backend/public:/var/www/html  # Código PHP da sua aplicação
-      - ./nginx/:/etc/nginx/  # Configuração do Nginx
-      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      # - ./nginx/:/etc/nginx/  # Configuração do Nginx
+      # - ./nginx/conf.d/:/etc/nginx/conf.d/
     depends_on:
-      - php  # Espera o PHP-FPM estar disponível
+      - mysql  # Espera o mySQL estar disponível
     networks:
       - app-network
 
   # Container do PHP-FPM com Composer
-  php:
-    build:  # Certifique-se de que este caminho é correto
-      context: .  # Caminho para o diretório onde o Dockerfile está localizado
-      dockerfile: Dockerfile  # Nome do arquivo Dockerfile    container_name: php_fpm
-    container_name: php
-    volumes:
-      - ./backend/public:/var/www/html  # Código PHP compartilhado com o Nginx
-      # - ./backend/vendor:/var/www/html/vendor  # Pasta vendor do Composer
-      #- ./backend/composer.json:/var/www/html/composer.json  # Composer.json para instalar dependências
-    depends_on:
-      - mysql
-    networks:
-      - app-network
+  # php:
+  #   build:  # Certifique-se de que este caminho é correto
+  #     context: .  # Caminho para o diretório onde o Dockerfile está localizado
+  #     dockerfile: Dockerfile  # Nome do arquivo Dockerfile    container_name: php_fpm
+  #   container_name: php
+  #   volumes:
+  #     - ./backend/public:/var/www/html  # Código PHP compartilhado com o Nginx
+  #     # - ./backend/vendor:/var/www/html/vendor  # Pasta vendor do Composer
+  #     #- ./backend/composer.json:/var/www/html/composer.json  # Composer.json para instalar dependências
+  #   depends_on:
+  #     - mysql
+  #   networks:
+  #     - app-network
 
   # MySQL Database container
   mysql:
